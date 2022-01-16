@@ -1,13 +1,12 @@
 package controllers
 
 import (
+	"api/Responses"
 	"api/src/db"
 	"api/src/models"
 	"api/src/repositorio"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 )
 
@@ -15,23 +14,23 @@ func CriarUsuario(w http.ResponseWriter, r *http.Request) {
 
 	corpoRequisicao, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		log.Fatal(err)
+		Responses.Erro(w, http.StatusUnprocessableEntity, err)
 	}
 	var usuario models.Usuario
 	if err = json.Unmarshal(corpoRequisicao, &usuario); err != nil {
-		log.Fatal(err)
+		Responses.Erro(w, http.StatusBadRequest, err)
 	}
 
 	db, err := db.Conectar()
 	if err != nil {
-		log.Fatal(err)
+		Responses.Erro(w, http.StatusInternalServerError, err)
 	}
 	usuarioRepositorio := repositorio.NovoRepositorioDeUsuario(db)
-	usuarioID, err := usuarioRepositorio.Criar(usuario)
+	usuario.ID, err = usuarioRepositorio.Criar(usuario)
 	if err != nil {
-		log.Fatal(err)
+		Responses.Erro(w, http.StatusInternalServerError, err)
 	}
-	w.Write([]byte(fmt.Sprintf("ultimo id inserido: %d", usuarioID)))
+	Responses.JSON(w, 201, usuario)
 }
 func BuscarUsuarios(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Buscando usuarios"))
