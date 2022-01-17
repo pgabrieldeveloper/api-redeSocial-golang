@@ -3,6 +3,7 @@ package repositorio
 import (
 	"api/src/models"
 	"database/sql"
+	"fmt"
 )
 
 type usuarioRepositorio struct {
@@ -12,6 +13,31 @@ type usuarioRepositorio struct {
 // NovoRepositorioDeUsuario cria um repositorio de usuarios
 func NovoRepositorioDeUsuario(db *sql.DB) *usuarioRepositorio {
 	return &usuarioRepositorio{db}
+}
+
+// BuscarUsuarios busca usuarios no banco de dados
+func (u usuarioRepositorio) BuscarUsuarios(nomeOuNick string) ([]models.Usuario, error) {
+	busca := fmt.Sprintf("%%%s%%", nomeOuNick)
+
+	linhas, err := u.db.Query("select id, name, nick, email, createAt from usuarios where name like ? or nick like ?", busca, busca)
+	if err != nil {
+		return nil, err
+	}
+	var usuarios []models.Usuario
+	for linhas.Next() {
+		var usuario models.Usuario
+		if err = linhas.Scan(
+			&usuario.ID,
+			&usuario.Name,
+			&usuario.Nick,
+			&usuario.Email,
+			&usuario.CreateAt,
+		); err != nil {
+			return nil, err
+		}
+		usuarios = append(usuarios, usuario)
+	}
+	return usuarios, nil
 }
 
 func (u usuarioRepositorio) Criar(usuario models.Usuario) (uint64, error) {
