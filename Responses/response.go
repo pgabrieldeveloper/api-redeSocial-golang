@@ -10,10 +10,11 @@ import (
 func JSON(w http.ResponseWriter, statusCode int, dados interface{}) {
 	w.Header().Set("Content-type", "application/json")
 	w.WriteHeader(statusCode)
-	if err := json.NewEncoder(w).Encode(dados); err != nil {
-		log.Fatal(err)
+	if dados != nil {
+		if err := json.NewEncoder(w).Encode(dados); err != nil {
+			log.Fatal(err)
+		}
 	}
-
 }
 
 // Erro retorna um erro no formato json

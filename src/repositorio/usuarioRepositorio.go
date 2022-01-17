@@ -78,3 +78,18 @@ func (u usuarioRepositorio) Criar(usuario models.Usuario) (uint64, error) {
 	return uint64(ultimoIDInserido), nil
 
 }
+
+func (u usuarioRepositorio) Atualizar(ID uint64, usuario models.Usuario) error {
+	statment, err := u.db.Prepare("update usuarios set name = ?, nick = ?, email = ? where id = ?")
+	if err != nil {
+		return err
+	}
+	defer statment.Close()
+	_, err = statment.Exec(usuario.Name, usuario.Nick, usuario.Email, ID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+
+}

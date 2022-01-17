@@ -17,16 +17,16 @@ type Usuario struct {
 }
 
 //Preparar valida e prepara campos para ser inseridos no banco de dados
-func (u *Usuario) Preparar() error {
+func (u *Usuario) Preparar(acao string) error {
 
-	if err := u.validar(); err != nil {
+	if err := u.validar(acao); err != nil {
 		return err
 	}
 	u.formatar()
 	return nil
 }
 
-func (u *Usuario) validar() error {
+func (u *Usuario) validar(acao string) error {
 	if u.Name == "" {
 		return errors.New("O campo name é um campo obrigatorio e nao pode estar em branco")
 	}
@@ -36,7 +36,7 @@ func (u *Usuario) validar() error {
 	if u.Email == "" {
 		return errors.New("O campo email é um campo obrigatorio e nao pode estar em branco")
 	}
-	if u.Password == "" {
+	if acao == "cadastrar" && u.Password == "" {
 		return errors.New("O campo password é um campo obrigatorio e nao pode estar em branco")
 	}
 	return nil
