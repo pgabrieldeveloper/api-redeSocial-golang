@@ -6,8 +6,10 @@ import (
 	"api/src/models"
 	"api/src/repositorio"
 	"encoding/json"
+	"github.com/gorilla/mux"
 	"io/ioutil"
 	"net/http"
+	"strconv"
 	"strings"
 )
 
@@ -57,7 +59,26 @@ func BuscarUsuarios(w http.ResponseWriter, r *http.Request) {
 	Responses.JSON(w, http.StatusOK, usuarios)
 }
 func BuscarUsuario(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("Buscando usuario"))
+	parametros := mux.Vars(r)
+	usuarioId, err := strconv.ParseUint(parametros["id"], 10, 64)
+	if err != nil {
+		Responses.Erro(w, http.StatusBadRequest, err)
+		return
+	}
+	db, err := db.Conectar()
+	if err != nil {
+		Responses.Erro(w, http.StatusInternalServerError, err)
+		return
+	}
+	defer db.Close()
+	usuarioRepositorio := repositorio.NovoRepositorioDeUsuario(db)
+
+	usuario, err := usuarioRepositorio.BuscarPorId(usuarioId)
+	if err != nil {
+		Responses.Erro(w, http.StatusInternalServerError, err)
+		return
+	}
+	Responses.JSON(w, http.StatusOK, usuario)
 }
 func AtualizarUsuario(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte("Atualizando usuario"))
