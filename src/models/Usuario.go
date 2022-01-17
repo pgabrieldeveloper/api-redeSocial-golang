@@ -2,6 +2,7 @@ package models
 
 import (
 	"errors"
+	"github.com/badoux/checkmail"
 	"strings"
 	"time"
 )
@@ -35,6 +36,9 @@ func (u *Usuario) validar(acao string) error {
 	}
 	if u.Email == "" {
 		return errors.New("O campo email é um campo obrigatorio e nao pode estar em branco")
+	}
+	if err := checkmail.ValidateFormat(u.Email); err != nil {
+		return errors.New("Formato de email é invalido !")
 	}
 	if acao == "cadastrar" && u.Password == "" {
 		return errors.New("O campo password é um campo obrigatorio e nao pode estar em branco")
