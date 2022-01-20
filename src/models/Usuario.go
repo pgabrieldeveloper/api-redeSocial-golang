@@ -1,6 +1,7 @@
 package models
 
 import (
+	"api/security"
 	"errors"
 	"github.com/badoux/checkmail"
 	"strings"
@@ -23,7 +24,9 @@ func (u *Usuario) Preparar(acao string) error {
 	if err := u.validar(acao); err != nil {
 		return err
 	}
-	u.formatar()
+	if err := u.formatar(acao); err != nil {
+		return err
+	}
 	return nil
 }
 
@@ -46,8 +49,16 @@ func (u *Usuario) validar(acao string) error {
 	return nil
 }
 
-func (u *Usuario) formatar() {
+func (u *Usuario) formatar(acao string) error {
 	u.Name = strings.TrimSpace(u.Name)
 	u.Nick = strings.TrimSpace(u.Nick)
 	u.Nick = strings.TrimSpace(u.Nick)
+	if acao == "cadastrar" {
+		passwordHash, err := security.HashPassword(u.Password)
+		if err != nil {
+			return err
+		}
+		u.Password = string(passwordHash)
+	}
+	return nil
 }
