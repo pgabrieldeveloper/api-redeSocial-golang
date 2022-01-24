@@ -1,7 +1,8 @@
 package middlewares
 
 import (
-	"fmt"
+	"api/src/Responses"
+	"api/src/autentication"
 	"log"
 	"net/http"
 )
@@ -9,8 +10,12 @@ import (
 // Autenticar responsavel por autenticar um usuario
 func Autenticar(next http.HandlerFunc) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println("ANILISANDO")
+		if err := autentication.ValidarToken(r); err != nil {
+			Responses.Erro(w, http.StatusUnauthorized, err)
+			return
+		}
 		next(w, r)
+
 	}
 }
 

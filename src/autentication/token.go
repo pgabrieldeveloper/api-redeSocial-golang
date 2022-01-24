@@ -2,6 +2,7 @@ package autentication
 
 import (
 	"api/src/config"
+	"errors"
 	"fmt"
 	jwt "github.com/dgrijalva/jwt-go"
 	"net/http"
@@ -14,7 +15,7 @@ func CriarToken(userID uint64) (string, error) {
 	permissoes["authorized"] = true
 	permissoes["exp"] = time.Now().Add(time.Hour * 6).Unix()
 	permissoes["userID"] = userID
-	token := jwt.NewWithClaims(jwt.SigningMethodES256, permissoes)
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, permissoes)
 	return token.SignedString([]byte(config.SecretKey))
 }
 
@@ -26,8 +27,11 @@ func ValidarToken(r *http.Request) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println(token)
-	return nil
+
+	if _, ok := token.Claims.(jwt.Claims); ok && token.Valid {
+		return nil
+	}
+	return errors.New("token invalido ")
 }
 
 func extrairToken(r *http.Request) string {

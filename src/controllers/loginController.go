@@ -41,11 +41,11 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		Responses.Erro(w, http.StatusUnauthorized, err)
 		return
 	}
-	token, err := autentication.CriarToken(usuario.ID)
+	token, err := autentication.CriarToken(usuarioBanco.ID)
 	if err != nil {
 		Responses.Erro(w, http.StatusUnauthorized, err)
 		return
 	}
 	fmt.Println(token)
-	w.Write([]byte("token"))
+	w.Write([]byte(token))
 }
