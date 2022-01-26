@@ -2,10 +2,12 @@ package controllers
 
 import (
 	"api/src/Responses"
+	"api/src/autentication"
 	"api/src/db"
 	"api/src/models"
 	"api/src/repositorio"
 	"encoding/json"
+	"errors"
 	"github.com/gorilla/mux"
 	"io/ioutil"
 	"net/http"
@@ -86,6 +88,15 @@ func AtualizarUsuario(w http.ResponseWriter, r *http.Request) {
 	usuarioId, err := strconv.ParseUint(parametros["id"], 10, 64)
 	if err != nil {
 		Responses.Erro(w, http.StatusBadRequest, err)
+		return
+	}
+	usuarioIDJSON, err := autentication.ExtrairUserID(r)
+	if err != nil {
+		Responses.Erro(w, http.StatusUnauthorized, err)
+		return
+	}
+	if usuarioIDJSON != usuarioId {
+		Responses.Erro(w, http.StatusForbidden, errors.New("Usuario Logado difere do usuario que esta sendo atualizado"))
 		return
 	}
 	usuarioJSON, err := ioutil.ReadAll(r.Body)
